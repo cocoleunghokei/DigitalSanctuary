@@ -11,11 +11,13 @@ A SwiftUI mood tracker app for iOS. Track your daily mood with emojis, short ref
 
 ## Mock-ups
 
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/d0177e3b-9d1f-42a3-9727-6e368094823c" width="30%" style="vertical-align: top;" />
-  <img src="https://github.com/user-attachments/assets/ff7eef6d-6561-4b5f-a180-529c121ec711" width="30%" style="vertical-align: top;" />
-  <img src="https://github.com/user-attachments/assets/0f1fdb08-0015-41b4-9790-876af00d429a" width="30%" style="vertical-align: top;" />
-</p>
+<table align="center" border="0">
+  <tr>
+    <td align="center" valign="top"><img src="https://github.com/user-attachments/assets/d0177e3b-9d1f-42a3-9727-6e368094823c" width="270" /></td>
+    <td align="center" valign="top"><img src="https://github.com/user-attachments/assets/ff7eef6d-6561-4b5f-a180-529c121ec711" width="270" /></td>
+    <td align="center" valign="top"><img src="https://github.com/user-attachments/assets/0f1fdb08-0015-41b4-9790-876af00d429a" width="270" /></td>
+  </tr>
+</table>
 
 
 
