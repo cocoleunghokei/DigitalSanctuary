@@ -34,3 +34,12 @@ fastlane/test_output
 .env
 .env.local
 .env*.local
+
+# Xcode user state
+*.xcuserstate
+xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcworkspace/contents.xcworkspacedata
+
+# Secrets (never commit)
+DigitalSanctuary/Utilities/Secrets.swift

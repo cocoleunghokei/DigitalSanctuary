@@ -3,12 +3,14 @@ import SwiftUI
 struct MoodCloudView: View {
     let entries: [MoodEntry]
 
-    private var moodCounts: [(mood: MoodType, count: Int)] {
-        var counts: [MoodType: Int] = [:]
-        for e in entries { counts[e.mood, default: 0] += 1 }
+    private var moodCounts: [(emoji: String, count: Int)] {
+        var counts: [String: Int] = [:]
+        for e in entries { counts[e.moodRaw, default: 0] += 1 }
         return counts
-            .map { (mood: $0.key, count: $0.value) }
+            .map { (emoji: $0.key, count: $0.value) }
             .sorted { $0.count > $1.count }
+            .prefix(4)
+            .map { $0 }
     }
 
     private var maxCount: Int { moodCounts.first?.count ?? 1 }
@@ -29,8 +31,8 @@ struct MoodCloudView: View {
             } else {
                 let gridColumns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 4)
                 LazyVGrid(columns: gridColumns, spacing: 12) {
-                    ForEach(moodCounts, id: \.mood) { item in
-                        cloudChip(mood: item.mood, count: item.count)
+                    ForEach(moodCounts, id: \.emoji) { item in
+                        cloudChip(emoji: item.emoji, count: item.count)
                     }
                 }
                 .padding(20)
@@ -39,12 +41,12 @@ struct MoodCloudView: View {
         }
     }
 
-    private func cloudChip(mood: MoodType, count: Int) -> some View {
+    private func cloudChip(emoji: String, count: Int) -> some View {
         let ratio = Double(count) / Double(max(maxCount, 1))
         let emojiSize = 16 + (ratio * 18) // 16…34pt
 
         return VStack(spacing: 4) {
-            Text(mood.emoji)
+            Text(emoji)
                 .font(.system(size: emojiSize))
             Text("\(count)x")
                 .font(.dsCaption)

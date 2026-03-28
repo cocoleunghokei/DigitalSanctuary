@@ -1,19 +1,21 @@
 import SwiftUI
 
 struct MoodChipView: View {
-    let mood: MoodType
+    let emoji: String
+    let label: String
     let isSelected: Bool
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             VStack(spacing: 6) {
-                Text(mood.emoji)
+                Text(emoji)
                     .font(.dsMoodEmoji)
-                Text(mood.label)
+                Text(label)
                     .font(.dsCaption)
                     .foregroundStyle(Color.dsOnSurface)
                     .lineLimit(1)
+                    .minimumScaleFactor(0.8)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)

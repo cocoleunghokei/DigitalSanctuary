@@ -1,9 +1,15 @@
 import SwiftUI
 
+// Identifiable wrapper so .sheet(item:) gets a fresh instance on every tap
+private struct EntryTarget: Identifiable {
+    let id = UUID()
+    let date: Date
+}
+
 struct ContentView: View {
-    @State private var activeTab: AppTab = .weekly
-    @State private var showNewEntry = false
-    @State private var targetDate: Date = Date()
+    @State private var activeTab: AppTab = .monthly
+    @State private var entryTarget: EntryTarget? = nil
+    @State private var refreshTrigger = 0
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -11,18 +17,17 @@ struct ContentView: View {
             Group {
                 switch activeTab {
                 case .monthly:
-                    MonthlyView(onDayTap: { date in
-                        targetDate = date
-                        withAnimation(.spring(response: 0.35)) { activeTab = .daily }
-                    })
+                    MonthlyView(
+                        onDayTap: { date in entryTarget = EntryTarget(date: date) },
+                        refreshTrigger: refreshTrigger
+                    )
                 case .weekly:
-                    WeeklyView(onDayTap: { date in
-                        targetDate = date
-                        withAnimation(.spring(response: 0.35)) { activeTab = .daily }
-                    })
-                case .daily:
-                    DailyView(initialDate: targetDate)
-                        .id(targetDate)
+                    WeeklyView(
+                        onDayTap: { date in entryTarget = EntryTarget(date: date) },
+                        refreshTrigger: refreshTrigger
+                    )
+                case .community:
+                    CommunityView()
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -31,20 +36,23 @@ struct ContentView: View {
             // Glassmorphic bottom nav
             BottomNavBar(activeTab: $activeTab)
 
-            // Floating Action Button (bottom-right, above nav bar)
+            // Floating Action Button — visible on all tabs
             VStack {
                 Spacer()
                 HStack {
                     Spacer()
-                    FABButton(action: { showNewEntry = true })
+                    FABButton(action: { entryTarget = EntryTarget(date: Date()) })
                         .padding(.trailing, 22)
                         .padding(.bottom, 94)
                 }
             }
         }
         .ignoresSafeArea(edges: .bottom)
-        .sheet(isPresented: $showNewEntry) {
-            DailyView(isModal: true)
+        .sheet(item: $entryTarget) { target in
+            DailyView(isModal: true, initialDate: target.date, onSave: {
+                entryTarget = nil
+                refreshTrigger += 1
+            })
         }
     }
 }

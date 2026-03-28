@@ -8,6 +8,7 @@ struct MonthlyView: View {
     @State private var monthEntries: [MoodEntry] = []
 
     var onDayTap: ((Date) -> Void)? = nil
+    var refreshTrigger: Int = 0
 
     private var monthStart: Date {
         let (start, _) = DateHelpers.monthRange(offset: monthOffset)
@@ -32,7 +33,8 @@ struct MonthlyView: View {
                 CalendarGridView(
                     monthStart: monthStart,
                     entries: monthEntries,
-                    onDayTap: onDayTap
+                    onDayTap: onDayTap,
+                    onMoodQuickSaved: { fetchEntries() }
                 )
                 .padding(.horizontal, 20)
                 .padding(.bottom, 28)
@@ -42,6 +44,10 @@ struct MonthlyView: View {
                     .padding(.bottom, 24)
 
                 MonthlyTrendView(entries: monthEntries)
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 24)
+
+                AIMonthlySummaryView(entries: monthEntries, month: monthStart)
                     .padding(.horizontal, 20)
                     .padding(.bottom, 24)
 
@@ -57,13 +63,14 @@ struct MonthlyView: View {
         .background(Color.dsSurface.ignoresSafeArea())
         .onAppear { fetchEntries() }
         .onChange(of: monthOffset) { fetchEntries() }
+        .onChange(of: refreshTrigger) { fetchEntries() }
     }
 
     // MARK: - Header
 
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Spacer().frame(height: 60)
+            Spacer().frame(height: 20)
             Text("Your Journey")
                 .font(.dsCaption)
                 .foregroundStyle(Color.dsOnSurfaceVariant)
@@ -133,7 +140,7 @@ struct MonthlyView: View {
 
     private func fetchEntries() {
         let (start, end) = DateHelpers.monthRange(offset: monthOffset)
-        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: end)!
+        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: end) ?? end
         let descriptor = FetchDescriptor<MoodEntry>(
             predicate: #Predicate { $0.date >= start && $0.date < endOfDay },
             sortBy: [SortDescriptor(\.date)]

@@ -31,3 +31,19 @@ enum MoodType: String, CaseIterable, Codable {
         self == .happy || self == .grounded || self == .fabulous
     }
 }
+
+// MARK: - Unified mood selection (built-in or custom)
+
+struct MoodSelection: Equatable {
+    let emoji: String
+    let label: String
+    let isPositive: Bool
+
+    static func from(_ mood: MoodType) -> MoodSelection {
+        MoodSelection(emoji: mood.emoji, label: mood.label, isPositive: mood.isPositive)
+    }
+
+    static func from(_ custom: CustomMood) -> MoodSelection {
+        MoodSelection(emoji: custom.emoji, label: custom.label, isPositive: custom.isPositive)
+    }
+}

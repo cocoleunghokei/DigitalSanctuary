@@ -8,6 +8,7 @@ struct WeeklyView: View {
     @State private var weekEntries: [MoodEntry] = []
 
     var onDayTap: ((Date) -> Void)? = nil
+    var refreshTrigger: Int = 0
 
     private var days: [Date] {
         DateHelpers.daysInWeek(offset: weekOffset)
@@ -31,7 +32,10 @@ struct WeeklyView: View {
                     .padding(.horizontal, 20)
                     .padding(.bottom, 28)
 
-                ReflectionListView(entries: weekEntries.filter { !$0.reflection.isEmpty })
+                ReflectionListView(
+                    entries: weekEntries.filter { !$0.reflection.isEmpty },
+                    onTap: onDayTap
+                )
                     .padding(.horizontal, 20)
                     .padding(.bottom, 100)
             }
@@ -39,13 +43,14 @@ struct WeeklyView: View {
         .background(Color.dsSurface.ignoresSafeArea())
         .onAppear { fetchEntries() }
         .onChange(of: weekOffset) { fetchEntries() }
+        .onChange(of: refreshTrigger) { fetchEntries() }
     }
 
     // MARK: - Header
 
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Spacer().frame(height: 60)
+            Spacer().frame(height: 20)
             Text("Detailed Narrative")
                 .font(.dsCaption)
                 .foregroundStyle(Color.dsOnSurfaceVariant)
@@ -93,18 +98,16 @@ struct WeeklyView: View {
     // MARK: - Day strip
 
     private var dayStrip: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 10) {
-                ForEach(days, id: \.self) { day in
-                    DayCardView(
-                        date: day,
-                        entry: entry(for: day),
-                        onTap: { onDayTap?(day) }
-                    )
-                }
+        HStack(spacing: 6) {
+            ForEach(days, id: \.self) { day in
+                DayCardView(
+                    date: day,
+                    entry: entry(for: day),
+                    onTap: { onDayTap?(day) }
+                )
             }
-            .padding(.horizontal, 20)
         }
+        .padding(.horizontal, 16)
     }
 
     // MARK: - Helpers
@@ -115,7 +118,7 @@ struct WeeklyView: View {
 
     private func fetchEntries() {
         let (start, end) = DateHelpers.weekRange(offset: weekOffset)
-        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: end)!
+        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: end) ?? end
         let descriptor = FetchDescriptor<MoodEntry>(
             predicate: #Predicate { $0.date >= start && $0.date < endOfDay },
             sortBy: [SortDescriptor(\.date)]

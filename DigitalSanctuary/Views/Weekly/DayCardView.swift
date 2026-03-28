@@ -15,44 +15,45 @@ struct DayCardView: View {
 
     var body: some View {
         Button(action: { onTap?() }) {
-            VStack(spacing: 10) {
+            VStack(spacing: 6) {
                 Text(DateHelpers.shortWeekdayName(for: date))
-                    .font(.dsCaption)
+                    .font(.system(size: 9, weight: .semibold))
                     .foregroundStyle(isToday ? Color.dsPrimaryDim : Color.dsOnSurfaceVariant)
 
                 ZStack {
                     Circle()
                         .fill(Color.dsSurfaceContainerLow)
-                        .frame(width: 52, height: 52)
+                        .frame(width: 38, height: 38)
 
                     if let entry = entry {
-                        Text(entry.mood.emoji)
-                            .font(.system(size: 26))
+                        Text(entry.moodRaw)
+                            .font(.system(size: 20))
                     } else {
                         Circle()
                             .fill(Color.dsSurfaceContainerHigh)
-                            .frame(width: 32, height: 32)
+                            .frame(width: 22, height: 22)
                     }
                 }
 
                 Text("\(DateHelpers.dayNumber(for: date))")
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
                     .foregroundStyle(Color.dsOnSurface)
 
                 if let entry = entry {
-                    Text(entry.mood.label.uppercased())
-                        .font(.dsCaption)
+                    Text(entry.resolvedLabel.uppercased())
+                        .font(.system(size: 8, weight: .semibold))
                         .foregroundStyle(Color.dsPrimaryDim)
                         .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                 } else {
                     Text(" ")
-                        .font(.dsCaption)
+                        .font(.system(size: 8))
                 }
             }
-            .frame(width: 82)
-            .padding(.vertical, 18)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
             .background(cardBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 22))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
         }
         .buttonStyle(.plain)
     }

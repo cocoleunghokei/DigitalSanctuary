@@ -1,21 +1,21 @@
 import SwiftUI
 
 enum AppTab: CaseIterable {
-    case monthly, weekly, daily
+    case monthly, weekly, community
 
     var label: String {
         switch self {
-        case .monthly: return "Monthly"
-        case .weekly:  return "Weekly"
-        case .daily:   return "Daily"
+        case .monthly:   return "Monthly"
+        case .weekly:    return "Weekly"
+        case .community: return "Messages"
         }
     }
 
     var icon: String {
         switch self {
-        case .monthly: return "calendar"
-        case .weekly:  return "chart.bar"
-        case .daily:   return "face.smiling"
+        case .monthly:   return "calendar"
+        case .weekly:    return "chart.bar"
+        case .community: return "bubble.left.and.bubble.right"
         }
     }
 }
@@ -25,13 +25,12 @@ struct BottomNavBar: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            navItem(.monthly)
-            Spacer()
-            navItem(.weekly)
-            Spacer()
-            navItem(.daily)
+            ForEach(AppTab.allCases, id: \.self) { tab in
+                navItem(tab)
+                if tab != AppTab.allCases.last { Spacer() }
+            }
         }
-        .padding(.horizontal, 40)
+        .padding(.horizontal, 28)
         .padding(.top, 14)
         .padding(.bottom, 32)
         .glassmorphic()
@@ -55,7 +54,7 @@ struct BottomNavBar: View {
                     .font(.dsCaption)
             }
             .foregroundStyle(isActive ? Color.dsPrimary : Color.dsOnSurfaceVariant)
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .background(
                 isActive

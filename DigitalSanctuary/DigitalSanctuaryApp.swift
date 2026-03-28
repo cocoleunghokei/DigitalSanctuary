@@ -7,6 +7,6 @@ struct DigitalSanctuaryApp: App {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(for: MoodEntry.self)
+        .modelContainer(for: [MoodEntry.self, CustomMood.self, CommunityMessage.self])
     }
 }

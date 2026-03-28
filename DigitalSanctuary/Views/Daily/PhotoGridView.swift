@@ -37,7 +37,7 @@ struct PhotoGridView: View {
 
                             Button {
                                 withAnimation(.spring(response: 0.3)) {
-                                    photoData.remove(at: index)
+                                    var updated = photoData; updated.remove(at: index); photoData = updated
                                 }
                             } label: {
                                 Image(systemName: "xmark.circle.fill")

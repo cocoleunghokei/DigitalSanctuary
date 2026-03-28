@@ -18,9 +18,9 @@ struct DateHelpers {
         let weekday = calendar.component(.weekday, from: today)
         // weekday: 1=Sun, 2=Mon…7=Sat  — days since Monday:
         let daysSinceMonday = (weekday - 2 + 7) % 7
-        let thisMonday = calendar.date(byAdding: .day, value: -daysSinceMonday, to: today)!
-        let monday = calendar.date(byAdding: .weekOfYear, value: offset, to: thisMonday)!
-        let sunday = calendar.date(byAdding: .day, value: 6, to: monday)!
+        let thisMonday = calendar.date(byAdding: .day, value: -daysSinceMonday, to: today) ?? today
+        let monday = calendar.date(byAdding: .weekOfYear, value: offset, to: thisMonday) ?? thisMonday
+        let sunday = calendar.date(byAdding: .day, value: 6, to: monday) ?? monday
         return (monday, sunday)
     }
 
@@ -34,13 +34,14 @@ struct DateHelpers {
 
     // Returns (first day, last day) of a month at offset from today
     static func monthRange(offset: Int) -> (start: Date, end: Date) {
-        let target = calendar.date(byAdding: .month, value: offset, to: Date())!
+        let now = Date()
+        let target = calendar.date(byAdding: .month, value: offset, to: now) ?? now
         let comps = calendar.dateComponents([.year, .month], from: target)
-        let start = calendar.date(from: comps)!
+        let start = calendar.date(from: comps) ?? now
         var endComps = DateComponents()
         endComps.month = 1
         endComps.day = -1
-        let end = calendar.date(byAdding: endComps, to: start)!
+        let end = calendar.date(byAdding: endComps, to: start) ?? start
         return (start, end)
     }
 
@@ -48,12 +49,12 @@ struct DateHelpers {
     // including leading days from the previous month and trailing days to fill rows
     static func calendarGridDays(for monthStart: Date) -> [(date: Date, isCurrentMonth: Bool)] {
         let comps = calendar.dateComponents([.year, .month], from: monthStart)
-        let firstDay = calendar.date(from: comps)!
+        let firstDay = calendar.date(from: comps) ?? monthStart
 
         var endComps = DateComponents()
         endComps.month = 1
         endComps.day = -1
-        let lastDay = calendar.date(byAdding: endComps, to: firstDay)!
+        let lastDay = calendar.date(byAdding: endComps, to: firstDay) ?? firstDay
         let totalDays = calendar.component(.day, from: lastDay)
 
         let firstWeekday = calendar.component(.weekday, from: firstDay)

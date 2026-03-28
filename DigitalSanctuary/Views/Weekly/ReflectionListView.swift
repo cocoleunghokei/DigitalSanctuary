@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ReflectionListView: View {
     let entries: [MoodEntry]
+    var onTap: ((Date) -> Void)? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -19,7 +20,10 @@ struct ReflectionListView: View {
             } else {
                 LazyVStack(spacing: 12) {
                     ForEach(entries.sorted(by: { $0.date < $1.date }), id: \.id) { entry in
-                        reflectionCard(entry)
+                        Button { onTap?(entry.date) } label: {
+                            reflectionCard(entry)
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
             }
@@ -40,7 +44,7 @@ struct ReflectionListView: View {
                     Text(DateHelpers.fullDateString(for: entry.date))
                         .font(.dsLabel)
                         .foregroundStyle(Color.dsOnSurface)
-                    Text(entry.mood.label.uppercased())
+                    Text(entry.resolvedLabel.uppercased())
                         .font(.dsCaption)
                         .foregroundStyle(Color.dsPrimaryDim)
                         .kerning(0.8)
@@ -48,7 +52,7 @@ struct ReflectionListView: View {
 
                 Spacer()
 
-                Text(entry.mood.emoji)
+                Text(entry.moodRaw)
                     .font(.system(size: 26))
             }
 

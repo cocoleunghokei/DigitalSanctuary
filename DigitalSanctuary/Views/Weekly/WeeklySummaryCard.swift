@@ -9,10 +9,12 @@ struct WeeklySummaryCard: View {
         return WeeklySummaryGenerator.generate(entries: entries, weekStart: start)
     }
 
-    private var dominantMood: MoodType? {
-        var counts: [MoodType: Int] = [:]
-        for e in entries { counts[e.mood, default: 0] += 1 }
-        return counts.max(by: { $0.value < $1.value })?.key
+    private var dominantEntry: (emoji: String, label: String)? {
+        var counts: [String: Int] = [:]
+        for e in entries { counts[e.moodRaw, default: 0] += 1 }
+        guard let dominantRaw = counts.max(by: { $0.value < $1.value })?.key,
+              let entry = entries.first(where: { $0.moodRaw == dominantRaw }) else { return nil }
+        return (entry.moodRaw, entry.resolvedLabel)
     }
 
     var body: some View {
@@ -54,9 +56,9 @@ struct WeeklySummaryCard: View {
             // Stat cards
             HStack(spacing: 12) {
                 statCard(
-                    icon: dominantMood.map { AnyView(Text($0.emoji).font(.system(size: 32))) }
+                    icon: dominantEntry.map { AnyView(Text($0.emoji).font(.system(size: 32))) }
                         ?? AnyView(Image(systemName: "moon.zzz").font(.system(size: 26)).foregroundStyle(Color.dsPrimary)),
-                    value: dominantMood?.label ?? "—",
+                    value: dominantEntry?.label ?? "—",
                     label: "Most felt"
                 )
                 statCard(

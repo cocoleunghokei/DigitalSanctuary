@@ -4,12 +4,13 @@ import PhotosUI
 
 struct DailyView: View {
     var isModal: Bool = false
+    var onSave: (() -> Void)? = nil
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
     @State private var selectedDate: Date
-    @State private var selectedMood: MoodType? = nil
+    @State private var moodSelection: MoodSelection? = nil
     @State private var reflection = ""
     @State private var photoData: [Data] = []
     @State private var existingEntry: MoodEntry? = nil
@@ -19,8 +20,9 @@ struct DailyView: View {
     private let maxPhotos = 4
     private let maxBytes = 5 * 1024 * 1024
 
-    init(isModal: Bool = false, initialDate: Date = Date()) {
+    init(isModal: Bool = false, initialDate: Date = Date(), onSave: (() -> Void)? = nil) {
         self.isModal = isModal
+        self.onSave = onSave
         self._selectedDate = State(initialValue: Calendar.current.startOfDay(for: initialDate))
     }
 
@@ -28,7 +30,7 @@ struct DailyView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 28) {
                 headerSection
-                EmojiPickerView(selectedMood: $selectedMood)
+                EmojiPickerView(selection: $moodSelection)
                 reflectionSection
                 PhotoGridView(photoData: $photoData, maxPhotos: maxPhotos, maxBytes: maxBytes)
                 saveButton
@@ -63,7 +65,7 @@ struct DailyView: View {
                 .foregroundStyle(Color.dsOnSurfaceVariant)
                 .kerning(1.5)
 
-            Text("Today's Entry")
+            Text(Calendar.current.isDateInToday(selectedDate) ? "Today's Entry" : "Past Entry")
                 .font(.dsHero)
                 .foregroundStyle(Color.dsOnSurface)
         }
@@ -127,18 +129,18 @@ struct DailyView: View {
         Button(action: save) {
             Text(existingEntry != nil ? "Update Entry" : "Save Entry")
                 .font(.dsSubtitle)
-                .foregroundStyle(selectedMood == nil ? Color.dsOnSurfaceVariant : .white)
+                .foregroundStyle(moodSelection == nil ? Color.dsOnSurfaceVariant : .white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
                 .background(
-                    selectedMood == nil
+                    moodSelection == nil
                         ? AnyShapeStyle(Color.dsSurfaceContainerHigh)
                         : AnyShapeStyle(LinearGradient.dsPrimaryGradient)
                 )
                 .clipShape(Capsule())
         }
-        .disabled(selectedMood == nil)
-        .animation(.easeInOut(duration: 0.2), value: selectedMood)
+        .disabled(moodSelection == nil)
+        .animation(.easeInOut(duration: 0.2), value: moodSelection)
     }
 
     // MARK: - Saved badge overlay
@@ -162,39 +164,50 @@ struct DailyView: View {
 
     private func loadEntry() {
         let start = DateHelpers.startOfDay(selectedDate)
-        let end = Calendar.current.date(byAdding: .day, value: 1, to: start)!
+        let end = Calendar.current.date(byAdding: .day, value: 1, to: start) ?? start
         let descriptor = FetchDescriptor<MoodEntry>(
             predicate: #Predicate { $0.date >= start && $0.date < end }
         )
         existingEntry = try? modelContext.fetch(descriptor).first
         if let entry = existingEntry {
-            selectedMood = entry.mood
+            moodSelection = MoodSelection(
+                emoji: entry.moodRaw,
+                label: entry.resolvedLabel,
+                isPositive: entry.resolvedIsPositive
+            )
             reflection = entry.reflection
             photoData = entry.photoData
         }
     }
 
     private func save() {
-        guard let mood = selectedMood else { return }
+        guard let sel = moodSelection else { return }
 
         if let entry = existingEntry {
-            entry.moodRaw = mood.rawValue
+            entry.moodRaw = sel.emoji
+            entry.moodLabel = sel.label == (MoodType(rawValue: sel.emoji)?.label ?? "") ? "" : sel.label
+            entry.moodIsPositive = sel.isPositive
             entry.reflection = reflection
             entry.photoData = photoData
         } else {
             let entry = MoodEntry(
                 date: selectedDate,
-                mood: mood,
+                mood: MoodType(rawValue: sel.emoji) ?? .neutral,
                 reflection: reflection,
                 photoData: photoData
             )
+            // Override with actual selection in case it's a custom mood
+            entry.moodRaw = sel.emoji
+            entry.moodLabel = sel.label == (MoodType(rawValue: sel.emoji)?.label ?? "") ? "" : sel.label
+            entry.moodIsPositive = sel.isPositive
             modelContext.insert(entry)
             existingEntry = entry
         }
 
+        onSave?()
         if isModal {
             dismiss()
-        } else {
+        } else if onSave == nil {
             withAnimation(.spring()) { showSavedBadge = true }
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 withAnimation { showSavedBadge = false }
