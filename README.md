@@ -7,7 +7,7 @@ A native iOS mood-tracking application built with SwiftUI and SwiftData. Designe
 ## Demo
 
 <div align="center">
-  <video src="https://github.com/cocoleunghokei/DigitalSanctuary/releases/download/v1.0-demo/demo.mov" width="400" controls autoplay loop muted></video>
+  <img src="demo.gif" width="270" alt="App demo" />
 </div>
 
 ---
