@@ -2,13 +2,9 @@
 
 A native iOS mood-tracking application built with SwiftUI and SwiftData. Designed around the idea that emotional self-awareness compounds — small daily check-ins surface patterns, and patterns surface insight.
 
-<table align="center" border="0">
-  <tr>
-    <td align="center" valign="top"><img src="https://github.com/user-attachments/assets/d0177e3b-9d1f-42a3-9727-6e368094823c" width="270" /></td>
-    <td align="center" valign="top"><img src="https://github.com/user-attachments/assets/ff7eef6d-6561-4b5f-a180-529c121ec711" width="270" /></td>
-    <td align="center" valign="top"><img src="https://github.com/user-attachments/assets/0f1fdb08-0015-41b4-9790-876af00d429a" width="270" /></td>
-  </tr>
-</table>
+<div align="center">
+  <video src="https://github.com/cocoleunghokei/DigitalSanctuary/releases/download/v1.0-demo/demo.mov" width="400" controls autoplay loop muted></video>
+</div>
 
 ---
 
